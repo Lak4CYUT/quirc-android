@@ -39,6 +39,11 @@ public class QuircHelper
      * binary image, it is useful about debug.
      */
     native int detectGrids(byte [] frame, boolean writeback);
-    native int decodeLastFrame(List<QrCode> result);
+    native int decode(List<QrCode> result);
     native void release();
+
+    static
+    {
+        System.loadLibrary("native-lib");
+    }
 }

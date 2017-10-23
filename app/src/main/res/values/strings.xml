@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">QuircDemo</string>
+    <string name="str_quirc_cam">QuircCam</string>
 </resources>

@@ -7,7 +7,7 @@
 #define LOG_TAG "QuircHelp-JNI"
 #include "quirc.h"
 
-static const char* CLS_PATH_QRCODE = "com.lakxtab.android.quircdemo.QuircHelper$Qrcode";
+static const char* CLS_PATH_QRCODE = "com/lakxtab/android/quircdemo/QuircHelper$QrCode";
 
 static struct quirc* gQr = NULL;
 static jclass gQrCode_cls;
@@ -136,7 +136,7 @@ Java_com_lakxtab_android_quircdemo_QuircHelper_detectGrids(JNIEnv *env, jobject 
     image = quirc_begin(gQr, &w, &h);
     if (len > (h*w))
     {
-        ALOGE("Frame size to big.");
+        ALOGE("Frame size to big. (buf: %d %dx%d, frame: %d)", (h*w), w, h, len);
         return JNI_ERR;
     }
     memcpy(image, frame, len);
@@ -152,7 +152,7 @@ Java_com_lakxtab_android_quircdemo_QuircHelper_detectGrids(JNIEnv *env, jobject 
 
 extern "C"
 JNIEXPORT jint JNICALL
-Java_com_lakxtab_android_quircdemo_QuircHelper_decodeLastFrame(JNIEnv *env, jobject instance,
+Java_com_lakxtab_android_quircdemo_QuircHelper_decode(JNIEnv *env, jobject instance,
                                                                jobject respList)
 {
     if (gQr == NULL)
@@ -163,7 +163,7 @@ Java_com_lakxtab_android_quircdemo_QuircHelper_decodeLastFrame(JNIEnv *env, jobj
     int count = quirc_count(gQr);
     if (count <= 0)
         return JNI_ERR;
-    if (respList == NULL || env->IsInstanceOf(respList, gList_cls))
+    if (respList == NULL || !env->IsInstanceOf(respList, gList_cls))
     {
         return JNI_ERR;
     }
@@ -177,8 +177,8 @@ Java_com_lakxtab_android_quircdemo_QuircHelper_decodeLastFrame(JNIEnv *env, jobj
         if (!quirc_decode(&code, &data))
         {
             ++findCount;
-            ALOGD("==> %s", data.payload);
-            ALOGD("    Version: %d, ECC: %c, Mask: %d, Type: %d",
+            ALOGE("==> %s", data.payload);
+            ALOGE("    Version: %d, ECC: %c, Mask: %d, Type: %d",
                 data.version, "MLHQ"[data.ecc_level], data.mask, data.data_type);
             jbyteArray payload = env->NewByteArray(data.payload_len);
             env->SetByteArrayRegion(payload, 0, data.payload_len,
